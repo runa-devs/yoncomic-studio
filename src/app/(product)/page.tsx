@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Noto_Sans_JP } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
-import { DiGithubBadge } from "react-icons/di";
+import { SiGithub } from "react-icons/si";
 
 const notoSansJP = Noto_Sans_JP({
   subsets: ["latin"],
@@ -46,7 +46,7 @@ export default async function Home() {
               </Button>
               <Button variant="outline">
                 GitHub
-                <DiGithubBadge className="size-6" />
+                <SiGithub className="size-6" />
               </Button>
             </div>
 
