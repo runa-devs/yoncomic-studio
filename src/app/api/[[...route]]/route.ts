@@ -7,4 +7,6 @@ const app = new Hono().get("/health", (c) =>
 
 export type AppType = typeof app;
 
-export { handle as GET, handle as POST };
+const handler = handle(app);
+
+export { handler as GET, handler as POST };
