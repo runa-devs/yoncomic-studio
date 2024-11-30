@@ -76,12 +76,33 @@ model Comic {
   @@map("comics")
 }
 
-model Panel {
+model Image {
   id      String @id @default(cuid())
-  image   String
-  order   Int
-  comicId String
-  comic   Comic  @relation(fields: [comicId], references: [id], onDelete: Cascade)
+  key     String
+  panelId String @unique
+  panel   Panel  @relation(fields: [panelId], references: [id])
+
+  @@unique([panelId, key])
+  @@map("images")
+}
+
+model Panel {
+  id       String      @id @default(cuid())
+  original String // original image url (fal.ai)
+  image    Image?
+  order    Int
+  comicId  String
+  comic    Comic       @relation(fields: [comicId], references: [id], onDelete: Cascade)
+  sdPrompt String      @db.Text
+  status   PanelStatus @default(PENDING)
 
   @@map("panels")
+}
+
+enum PanelStatus {
+  PENDING
+  GENERATING_TAGS
+  GENERATING_IMAGE
+  COMPLETED
+  FAILED
 }
