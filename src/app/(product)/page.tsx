@@ -72,21 +72,6 @@ export default async function Home() {
           </div>
         </section>
       </main>
-
-      <footer className="w-full bg-gray-100 py-6 dark:bg-gray-800">
-        <div className=" px-4 md:px-6">
-          <div className="flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-            <p className="text-center text-sm leading-loose text-gray-500 dark:text-gray-400 md:text-left">
-              © 2023 Acme Inc. All rights reserved.
-            </p>
-            <nav className="flex items-center space-x-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-              <Link href="/terms">Terms</Link>
-              <Link href="/privacy">Privacy</Link>
-              <Link href="/contact">Contact</Link>
-            </nav>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
