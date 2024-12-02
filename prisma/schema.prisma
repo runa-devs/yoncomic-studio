@@ -76,25 +76,17 @@ model Comic {
   @@map("comics")
 }
 
-model Image {
-  id      String @id @default(cuid())
-  key     String
-  panelId String @unique
-  panel   Panel  @relation(fields: [panelId], references: [id])
-
-  @@unique([panelId, key])
-  @@map("images")
-}
-
 model Panel {
-  id       String      @id @default(cuid())
-  original String // original image url (fal.ai)
-  image    Image?
-  order    Int
-  comicId  String
-  comic    Comic       @relation(fields: [comicId], references: [id], onDelete: Cascade)
-  sdPrompt String      @db.Text
-  status   PanelStatus @default(PENDING)
+  id             String      @id @default(cuid())
+  order          Int
+  comicId        String
+  civitaiJobId   String?     @unique
+  originalKey    String?
+  key            String?
+  comic          Comic       @relation(fields: [comicId], references: [id], onDelete: Cascade)
+  prompt         String      @db.Text
+  negativePrompt String      @db.Text
+  status         PanelStatus @default(PENDING)
 
   @@map("panels")
 }

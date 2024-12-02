@@ -1,10 +1,11 @@
+import { comics } from "@/app/api/[[...route]]/comics";
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
-import { comics } from "./comics";
 
 const app = new Hono()
-  .get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }))
-  .route("/comics", comics);
+  .basePath("/api")
+  .get("health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }))
+  .route("comics", comics);
 
 export type AppType = typeof app;
 
