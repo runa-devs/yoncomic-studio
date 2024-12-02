@@ -1,4 +1,5 @@
 "use client";
+import { CenterTab } from "@/app/(main)/projects/[projectId]/_components/centertab";
 import {
   Accordion,
   AccordionContent,
@@ -227,124 +228,59 @@ export const Genui = () => {
       </section>
       {/* メインコンテンツ */}
       <div
-        className={`flex flex-1 flex-col transition-all duration-300 ease-in-out ${
+        className={`flex flex-1 transition-all duration-300 ease-in-out ${
           isSidebarCollapsed ? "ml-0" : "ml-[20%]"
         }`}
       >
         <div className="flex"></div>
         {/* 上部エリア */}
-        <div className="flex-1 border-b">
-          <div className="size-full border-b bg-gray-100">
-            <div className="flex size-full items-center justify-center rounded-lg bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
-              {(() => {
-                const cell_style =
-                  "aspect-[3/2] w-[700px] rounded-sm border-2 border-gray-300 bg-white items-center flex justify-center text-[100px]";
-                switch (selectedCell) {
-                  case 0:
-                    return (
-                      <div>
-                        <section
-                          id="1"
-                          className="flex aspect-[3/2] w-[300px] items-center justify-center bg-white text-[80px]"
-                        >
-                          <span>1</span>
-                        </section>
-                        <section
-                          id="2"
-                          className="flex aspect-[3/2] w-[300px] items-center justify-center bg-white text-[80px]"
-                        >
-                          <span>2</span>
-                        </section>
-                        <section
-                          id="3"
-                          className="flex aspect-[3/2] w-[300px] items-center justify-center bg-white text-[80px]"
-                        >
-                          <span>3</span>
-                        </section>
-                        <section
-                          id="4"
-                          className="flex aspect-[3/2] w-[300px] items-center justify-center bg-white text-[80px]"
-                        >
-                          <span>4</span>
-                        </section>
+        <CenterTab />
+        {/* 右サイドバー */}
+        <div className="w-1/4 border-l bg-gray-100">
+          <div className="mb-0 mt-4 flex">
+            <section id="1" className="mt-0 w-full rounded-3xl bg-gray-200 p-4">
+              <Accordion type="multiple" defaultValue={["prompt"]} className="w-full">
+                <AccordionItem value="prompt" className="rounded-3xl bg-white shadow-md">
+                  <AccordionTrigger className="rounded-3xl bg-white px-4">
+                    生成設定
+                  </AccordionTrigger>
+                  <AccordionContent className="rounded-b-3xl bg-white px-4">
+                    <div className="flex flex-col gap-4">
+                      <textarea className="max-h-[9em] min-h-[10em] w-full resize-none rounded-md bg-muted p-2 outline-1 outline-gray-300"></textarea>
+                      <Button className="w-full bg-blue-600 text-[1em] text-white">生成する</Button>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="parameters" className="mt-2 rounded-3xl bg-white shadow-md">
+                  <AccordionTrigger className="px-4 ">詳細設定</AccordionTrigger>
+                  <AccordionContent className="rounded-full bg-white px-4">
+                    <div className="flex flex-col gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">CFG Scale: {cfgScale}</label>
+                        <Slider
+                          value={[cfgScale]}
+                          onValueChange={([value]: number[]) => setCfgScale(value)}
+                          min={1}
+                          max={20}
+                          step={1}
+                        />
                       </div>
-                    );
-                  case 1:
-                    return (
-                      <section id="1" className={cell_style}>
-                        <span>1</span>
-                      </section>
-                    );
-                  case 2:
-                    return (
-                      <section id="2" className={cell_style}>
-                        2
-                      </section>
-                    );
-                  case 3:
-                    return (
-                      <section id="3" className={cell_style}>
-                        3
-                      </section>
-                    );
-                  case 4:
-                    return (
-                      <section id="4" className={cell_style}>
-                        4
-                      </section>
-                    );
-                  default:
-                    return null; // それ以外の場合は何も表示しない
-                }
-              })()}
-            </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Steps: {steps}</label>
+                        <Slider
+                          value={[steps]}
+                          onValueChange={([value]: number[]) => setSteps(value)}
+                          min={1}
+                          max={150}
+                          step={1}
+                        />
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </section>
           </div>
-        </div>
-      </div>
-
-      {/* 右サイドバー */}
-      <div className="w-1/4 border-l bg-gray-100">
-        <div className="mb-0 mt-4 flex">
-          <section id="1" className="mt-0 w-full rounded-3xl bg-gray-200 p-4">
-            <Accordion type="multiple" defaultValue={["prompt"]} className="w-full">
-              <AccordionItem value="prompt" className="rounded-3xl bg-white shadow-md">
-                <AccordionTrigger className="rounded-3xl bg-white px-4">生成設定</AccordionTrigger>
-                <AccordionContent className="rounded-b-3xl bg-white px-4">
-                  <div className="flex flex-col gap-4">
-                    <textarea className="max-h-[9em] min-h-[10em] w-full resize-none rounded-md bg-muted p-2 outline-1 outline-gray-300"></textarea>
-                    <Button className="w-full bg-blue-600 text-[1em] text-white">生成する</Button>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="parameters" className="mt-2 rounded-3xl bg-white shadow-md">
-                <AccordionTrigger className="px-4 ">詳細設定</AccordionTrigger>
-                <AccordionContent className="rounded-full bg-white px-4">
-                  <div className="flex flex-col gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">CFG Scale: {cfgScale}</label>
-                      <Slider
-                        value={[cfgScale]}
-                        onValueChange={([value]) => setCfgScale(value)}
-                        min={1}
-                        max={20}
-                        step={1}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Steps: {steps}</label>
-                      <Slider
-                        value={[steps]}
-                        onValueChange={([value]) => setSteps(value)}
-                        min={1}
-                        max={150}
-                        step={1}
-                      />
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </section>
         </div>
       </div>
     </div>
