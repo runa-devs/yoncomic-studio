@@ -15,28 +15,39 @@ const notoSansJP = Noto_Sans_JP({
 
 const logo = "logo.svg";
 
+const navItems: { label: string; href: string }[] = [];
+
 export async function Header() {
   const session = await auth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/20 backdrop-blur-md">
       <div className="flex items-center">
-        <div className="flex flex-1 items-center gap-x-3 p-3">
+        <div className="flex flex-1 items-center gap-x-3 p-1">
           <div className="flex items-center gap-x-2">
             <Button size={"icon"} variant={"outline"} className="md:hidden">
               <Menu />
             </Button>
-            <Link className="flex items-center space-x-2" href="/">
-              <Image src={logo} alt="Logo" width={30} height={30} />
-              <span className={cn("inline-block text-lg", notoSansJP.className)}>
-                Yoncomic Studio
-              </span>
-            </Link>
+            <Button variant={"ghost"} asChild>
+              <Link className="flex items-center space-x-2" href="/">
+                <Image src={logo} alt="Logo" width={30} height={30} />
+                <span className={cn("inline-block text-lg", notoSansJP.className)}>
+                  Yoncomic Studio
+                </span>
+              </Link>
+            </Button>
           </div>
           <nav className="hidden flex-1 items-center gap-x-6 text-lg md:flex">
-            <Link href="/about">About</Link>
-            <Link href="/products">Products</Link>
-            <Link href="/pricing">Pricing</Link>
+            {navItems.length > 0 &&
+              navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {item.label}
+                </Link>
+              ))}
           </nav>
         </div>
         <div className="flex items-center justify-between space-x-2 md:justify-end">
