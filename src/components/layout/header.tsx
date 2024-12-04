@@ -1,9 +1,9 @@
 import { SignInButton } from "@/components/auth/signin-button";
-import { SignOutButton } from "@/components/auth/signout-button";
+import { UserMenu } from "@/components/auth/user-menu";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import { LogIn, LogOut, Menu } from "lucide-react";
+import { LogIn, Menu } from "lucide-react";
 import { Noto_Sans_JP } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -53,10 +53,7 @@ export async function Header() {
         <div className="flex items-center justify-between space-x-2 md:justify-end">
           <nav className="mr-5 flex items-center space-x-2">
             {session ? (
-              <SignOutButton className="gap-2">
-                <LogOut size={16} />
-                Sign Out
-              </SignOutButton>
+              <UserMenu />
             ) : (
               <SignInButton className="gap-2">
                 <LogIn size={16} />
