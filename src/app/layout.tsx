@@ -1,6 +1,18 @@
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
+import { M_PLUS_Rounded_1c, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
+
+const mplus = M_PLUS_Rounded_1c({
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  weight: ["400"],
+});
 
 export const metadata: Metadata = {
   title: "Yoncomic Studio",
@@ -27,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <SessionProvider>
-        <body className="flex min-h-svh flex-col">
+        <body className={cn("flex min-h-svh flex-col", mplus.className, notoSansJP.className)}>
           <main className="flex flex-1 flex-col">{children}</main>
         </body>
       </SessionProvider>

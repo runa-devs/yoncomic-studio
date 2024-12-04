@@ -56,7 +56,7 @@ export default async function Home() {
                 size="lg"
                 asChild
               >
-                <Link href="dashboard">はじめる</Link>
+                <Link href="/comics/new">はじめる</Link>
               </Button>
               <Button variant="outline" size="lg">
                 <SiGithub className="mr-2 size-5" />

@@ -1,4 +1,3 @@
-import { Header } from "@/components/layout/header";
 import { auth } from "@/lib/auth";
 import { Noto_Sans_JP } from "next/font/google";
 import { Characterform } from "./_components/form";
@@ -13,7 +12,6 @@ export default async function Character() {
   const session = await auth();
   return (
     <>
-      <Header />
       <Characterform />
     </>
   );

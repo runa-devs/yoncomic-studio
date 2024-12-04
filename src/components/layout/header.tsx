@@ -13,7 +13,7 @@ const notoSansJP = Noto_Sans_JP({
   weight: ["300"],
 });
 
-const logo = "logo.svg";
+const logo = "/logo.svg";
 
 const navItems: { label: string; href: string }[] = [];
 
