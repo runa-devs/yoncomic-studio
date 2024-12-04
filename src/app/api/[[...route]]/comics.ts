@@ -82,7 +82,7 @@ export const comics = new Hono()
 
     const comic = await prisma.comic.findUnique({
       where: { id },
-      include: { panels: true },
+      include: { panels: { orderBy: { order: "asc" } } },
     });
 
     if (!comic) {
