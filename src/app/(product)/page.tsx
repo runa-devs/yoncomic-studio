@@ -1,6 +1,8 @@
+import { ClientSignInButton } from "@/components/auth/signin-button-client";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { auth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { M_PLUS_Rounded_1c, Noto_Sans_JP } from "next/font/google";
 import Image from "next/image";
@@ -20,6 +22,7 @@ const mPlus = M_PLUS_Rounded_1c({
 const logo = "logo.svg";
 
 export default async function Home() {
+  const session = await auth();
   return (
     <div className="min-h-svh">
       <Header />
@@ -51,13 +54,23 @@ export default async function Home() {
               を使った簡易4コマ漫画作成ツール
             </p>
             <div className="flex items-center gap-4">
-              <Button
-                className="bg-gradient-to-r from-purple-500 to-pink-500 transition-all ease-in-out hover:scale-105 hover:shadow-xl"
-                size="lg"
-                asChild
-              >
-                <Link href="/comics/new">はじめる</Link>
-              </Button>
+              {session ? (
+                <Button
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 transition-all ease-in-out hover:scale-105 hover:shadow-xl"
+                  size="lg"
+                  asChild
+                >
+                  <Link href="/comics/new">はじめる</Link>
+                </Button>
+              ) : (
+                <ClientSignInButton
+                  redirectTo="/comics/new"
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 transition-all ease-in-out hover:scale-105 hover:shadow-xl"
+                >
+                  はじめる
+                </ClientSignInButton>
+              )}
               <Button variant="outline" size="lg">
                 <SiGithub className="mr-2 size-5" />
                 GitHub

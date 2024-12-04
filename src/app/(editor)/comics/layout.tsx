@@ -1,11 +1,11 @@
 import { Header } from "@/components/layout/header";
-import { ReactNode } from "react";
+import { Protected } from "@/components/layout/protected";
 
-export default function ComicsLayout({ children }: { children: ReactNode }) {
+export default function ComicsLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Header />
-      {children}
+      <Protected>{children}</Protected>
     </>
   );
 }
