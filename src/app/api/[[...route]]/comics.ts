@@ -5,6 +5,25 @@ import { uploadImageToS3 } from "@/lib/s3";
 import { PanelStatus } from "@prisma/client";
 import { Hono } from "hono";
 
+const generateComicId = async () => {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let result = "";
+  let isUnique = false;
+  while (!isUnique) {
+    result = "";
+    for (let i = 0; i < 6; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const existingComic = await prisma.comic.findUnique({
+      where: { id: result },
+    });
+    if (!existingComic) {
+      isUnique = true;
+    }
+  }
+  return result;
+};
+
 export const comics = new Hono()
   .post("/test-generate", async (c) => {
     const result = await generateImage({
@@ -32,6 +51,7 @@ export const comics = new Hono()
       data: {
         title: "New Comic",
         userId: session.user.id,
+        id: await generateComicId(),
       },
     });
 
