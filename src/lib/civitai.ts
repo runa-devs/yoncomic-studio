@@ -44,7 +44,7 @@ export async function generateImage(params: {
       height: 832,
       clipSkip: 2,
     },
-    callbackUrl: `${process.env.NEXT_PUBLIC_VERCEL_URL}/api/comics/webhook`,
+    callbackUrl: `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/api/comics/webhook`,
   };
 
   try {
