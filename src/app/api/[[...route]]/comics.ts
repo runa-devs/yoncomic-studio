@@ -28,7 +28,11 @@ const generateComicId = async () => {
 };
 
 export const comics = new Hono()
+  // test-generate と test-job は開発環境のみ
   .post("/test-generate", async (c) => {
+    if (process.env.NODE_ENV === "production") {
+      return c.json({ error: "Not available in production" }, 403);
+    }
     const result = await generateImage({
       prompt: "",
       negativePrompt: "",
@@ -37,6 +41,9 @@ export const comics = new Hono()
     return c.json(result);
   })
   .post("/test-job", async (c) => {
+    if (process.env.NODE_ENV === "production") {
+      return c.json({ error: "Not available in production" }, 403);
+    }
     const { jobId } = await c.req.json();
     if (!jobId) {
       return c.json({ error: "Job ID is required" }, 400);
@@ -49,7 +56,6 @@ export const comics = new Hono()
     if (!session?.user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
-
     const data = await c.req.valid("json");
 
     const comic = await prisma.comic.create({
@@ -60,15 +66,6 @@ export const comics = new Hono()
       },
     });
 
-    // generate danbooru tags for each panel
-    // TODO: generate tags with OpenAI Chat Completion API
-    // const prompts = [testPrompts, testPrompts, testPrompts, testPrompts];
-
-    // if (prompts.length !== 4) {
-    //   return c.json({ error: "Invalid number of panels" }, 400);
-    // }
-
-    // create panels
     await prisma.panel.createMany({
       data: Array.from({ length: 4 }, (_, index) => ({
         order: index,
@@ -133,12 +130,12 @@ export const comics = new Hono()
 
     return c.json({ status: "success", id: comicWithPanels.id });
   })
-  // get comic by id
   .get("/:id", async (c) => {
     const id = c.req.param("id");
+    const session = await auth();
 
     const comic = await prisma.comic.findUnique({
-      where: { id },
+      where: { id, userId: session?.user?.id },
       include: { panels: { orderBy: { order: "asc" } } },
     });
 
@@ -148,9 +145,18 @@ export const comics = new Hono()
 
     return c.json(comic);
   })
-  // get panel by order
   .get("/:id/panel/:order", async (c) => {
     const id = c.req.param("id");
+    const session = await auth();
+
+    const comic = await prisma.comic.findUnique({
+      where: { id, userId: session?.user?.id },
+    });
+
+    if (!comic) {
+      return c.json({ error: "Comic not found" }, 404);
+    }
+
     const order = parseInt(c.req.param("order"));
 
     if (isNaN(order) || order < 0 || order > 3) {
@@ -193,7 +199,6 @@ export const comics = new Hono()
     }
 
     const data = await c.req.json();
-    // TODO: 実際のパネル編集ロジックを実装
 
     return c.json({ success: true });
   })
