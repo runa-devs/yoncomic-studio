@@ -54,7 +54,7 @@ export default async function Home() {
                 </Button>
               ) : (
                 <ClientSignInButton
-                  redirectTo="/comics/new"
+                  redirect="/comics/new"
                   size="lg"
                   className="bg-gradient-to-r from-purple-500 to-pink-500 transition-all ease-in-out hover:scale-105 hover:shadow-xl"
                 >

@@ -5,9 +5,9 @@ import { Omit } from "@prisma/client/runtime/library";
 import { signIn } from "next-auth/react";
 
 type ClientSignInButtonProps = Omit<ButtonProps, "onClick"> & {
-  redirectTo?: string;
+  redirect?: string;
 };
 
 export const ClientSignInButton = (props: ClientSignInButtonProps) => {
-  return <Button {...props} onClick={() => signIn(undefined, { callbackUrl: props.redirectTo })} />;
+  return <Button {...props} onClick={() => signIn(undefined, { callbackUrl: props.redirect })} />;
 };
