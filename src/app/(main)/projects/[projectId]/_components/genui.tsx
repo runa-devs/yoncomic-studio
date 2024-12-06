@@ -17,13 +17,7 @@ import {
   PanelRightClose,
   PanelRightOpen,
 } from "lucide-react";
-import { Noto_Sans_JP } from "next/font/google";
 import { useState } from "react";
-
-const notoSansJP = Noto_Sans_JP({
-  subsets: ["latin"],
-  weight: ["300"],
-});
 
 const logo = "logo.svg";
 

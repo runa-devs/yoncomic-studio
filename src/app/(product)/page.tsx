@@ -3,21 +3,11 @@ import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { auth } from "@/lib/auth";
+import { mplus, notoSansJP } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
-import { M_PLUS_Rounded_1c, Noto_Sans_JP } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
 import { SiGithub } from "react-icons/si";
-
-const notoSansJP = Noto_Sans_JP({
-  subsets: ["latin"],
-  weight: ["300"],
-});
-
-const mPlus = M_PLUS_Rounded_1c({
-  subsets: ["latin"],
-  weight: ["400"],
-});
 
 const logo = "logo.svg";
 
@@ -26,7 +16,7 @@ export default async function Home() {
   return (
     <div className="min-h-svh">
       <Header />
-      <main className={cn("flex flex-col", mPlus.className)}>
+      <main className={cn("flex flex-col", mplus.className)}>
         <section className="relative flex h-[calc(100vh-4rem)] flex-col  items-center justify-center">
           <div className="relative z-10 flex flex-col items-center justify-center space-y-6 rounded-xl bg-background/20 p-10 shadow-lg backdrop-blur-md md:rounded-none md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
             <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
