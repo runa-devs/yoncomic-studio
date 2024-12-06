@@ -11,8 +11,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { client } from "@/lib/hono";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dices, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { CharacterCard } from "./character-card";
@@ -23,6 +25,7 @@ export function CharacterForm() {
   const [characters, setCharacters] = useState<CharacterFormValues[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
@@ -37,8 +40,12 @@ export function CharacterForm() {
     setEditingIndex(null);
   };
 
-  function onSubmit(data: FormValues) {
+  async function onSubmit(data: FormValues) {
     console.log("Submitted data:", data);
+    const res = await client.api.comics.new.$post({ json: data });
+    if (res.status === 200) {
+      router.push(`/comics/${(await res.json()).id}`);
+    }
   }
 
   const handleDeleteCharacter = (index: number) => {
