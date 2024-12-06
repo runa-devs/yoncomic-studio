@@ -1,12 +1,16 @@
 import { z } from "zod";
 
 export const characterSchema = z.object({
-  charactername: z.string({
-    required_error: "最低１文字以上で入力してください",
-  }),
-  gender: z.string({
-    required_error: "選択してください",
-  }),
+  charactername: z
+    .string({
+      required_error: "最低１文字以上で入力してください",
+    })
+    .min(1, "最低１文字以上で入力してください"),
+  gender: z
+    .string({
+      required_error: "選択してください",
+    })
+    .min(1, "選択してください"),
   hair_color: z.string().optional(),
   hair_length: z.string().optional(),
   hair_style: z.string().optional(),
