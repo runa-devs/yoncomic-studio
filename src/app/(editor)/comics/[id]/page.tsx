@@ -5,6 +5,7 @@ import { client } from "@/lib/hono";
 import { cn } from "@/lib/utils";
 import { PanelStatus } from "@prisma/client";
 import { AlertCircle, Loader2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import useSWR from "swr";
 import { GenerateStatus } from "./_components/generate-status";
@@ -15,7 +16,18 @@ const fetcher = async ([url, id]: [string, string]) => {
 };
 
 export default function ComicPage({ params }: { params: { id: string } }) {
-  const { data, error, isLoading } = useSWR(["/api/comics", params.id], fetcher);
+  const { data, error, isLoading } = useSWR(["/api/comics", params.id], fetcher, {
+    refreshInterval: (latestData) => {
+      if (
+        latestData &&
+        "panels" in latestData &&
+        latestData.panels.every((panel) => panel.status === PanelStatus.COMPLETED)
+      ) {
+        return 1000;
+      }
+      return 0;
+    },
+  });
 
   if (isLoading || data == undefined) {
     return (
@@ -42,38 +54,41 @@ export default function ComicPage({ params }: { params: { id: string } }) {
 
   if (!isReady) {
     return (
-      <div className="container mx-auto flex h-[calc(100svh-5rem)] max-w-2xl flex-col px-4 py-8 md:justify-center">
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-2xl font-bold">マンガは生成中です...</h1>
-            <p className="text-muted-foreground">
-              マンガの生成が完了するまでしばらくお待ちください。
-            </p>
-          </div>
-          <div className="grid gap-4">
-            {data.panels.map((panel, index) => (
-              <div
-                key={panel.id}
-                className={cn(
-                  "rounded-lg border p-4",
-                  panel.status === PanelStatus.COMPLETED && "bg-muted/50"
-                )}
-              >
-                <div className="mb-2 font-medium">コマ {index + 1}</div>
-                <GenerateStatus status={panel.status} />
-              </div>
-            ))}
-          </div>
-          {data.panels.some((panel) => panel.status === PanelStatus.FAILED) && (
-            <div className="flex flex-col gap-2">
-              <Button asChild>
-                <Link href={"/comics/new"}>やり直す</Link>
-              </Button>
+      <div className="flex flex-1 flex-col items-center justify-center bg-muted">
+        <div className="container max-w-2xl rounded-3xl bg-background p-8 shadow-lg">
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold">マンガは生成中です...</h1>
               <p className="text-muted-foreground">
-                生成に失敗しました。お手数ですが、最初からやり直してください。
+                マンガの生成が完了するまでしばらくお待ちください。
               </p>
+              <p className="text-muted-foreground">通常10~15分ほどで完了します。</p>
             </div>
-          )}
+            <div className="grid gap-4">
+              {data.panels.map((panel, index) => (
+                <div
+                  key={panel.id}
+                  className={cn(
+                    "rounded-lg border p-4",
+                    panel.status === PanelStatus.COMPLETED && "bg-muted/50"
+                  )}
+                >
+                  <div className="mb-2 font-medium">コマ {index + 1}</div>
+                  <GenerateStatus status={panel.status} />
+                </div>
+              ))}
+            </div>
+            {data.panels.some((panel) => panel.status === PanelStatus.FAILED) && (
+              <div className="flex flex-col gap-2">
+                <Button asChild>
+                  <Link href={"/comics/new"}>やり直す</Link>
+                </Button>
+                <p className="text-muted-foreground">
+                  生成に失敗しました。お手数ですが、最初からやり直してください。
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -85,7 +100,14 @@ export default function ComicPage({ params }: { params: { id: string } }) {
         <h1 className="text-2xl font-bold">生成されたコミック</h1>
         <div className="grid gap-4">
           {data.panels.map((panel, index) => (
-            <div key={panel.id} className="aspect-[16/9] rounded-lg border bg-muted"></div>
+            <Image
+              key={panel.id}
+              src={`${process.env.NEXT_PUBLIC_S3_PUBLIC_URL}/${panel.key ?? panel.originalKey}`}
+              alt={`コマ ${index + 1}`}
+              className="size-full rounded-lg border bg-muted"
+              width={1216}
+              height={832}
+            />
           ))}
         </div>
       </div>
