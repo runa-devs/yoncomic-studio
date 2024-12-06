@@ -1,7 +1,10 @@
+import { FormSchema } from "@/app/(editor)/comics/new/_components/form-schema";
 import { auth } from "@/lib/auth";
-import { generateImage, getJob, testPrompts } from "@/lib/civitai";
+import { generateImage, getJob } from "@/lib/civitai";
+import { generatePrompts } from "@/lib/openai";
 import { prisma } from "@/lib/prisma";
 import { uploadImageToS3 } from "@/lib/s3";
+import { zValidator } from "@hono/zod-validator";
 import { PanelStatus } from "@prisma/client";
 import { Hono } from "hono";
 
@@ -41,11 +44,13 @@ export const comics = new Hono()
     const result = await getJob(jobId);
     return c.json(result);
   })
-  .post("/new", async (c) => {
+  .post("/new", zValidator("json", FormSchema), async (c) => {
     const session = await auth();
     if (!session?.user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
+
+    const data = await c.req.valid("json");
 
     const comic = await prisma.comic.create({
       data: {
@@ -63,25 +68,53 @@ export const comics = new Hono()
     //   return c.json({ error: "Invalid number of panels" }, 400);
     // }
 
-    const prompts = [testPrompts];
-
     // create panels
     await prisma.panel.createMany({
-      data: prompts.map((prompt, index) => ({
+      data: Array.from({ length: 4 }, (_, index) => ({
         order: index,
         comicId: comic.id,
-        prompt: prompt.prompt,
-        negativePrompt: prompt.negativePrompt,
+        prompt: "",
+        negativePrompt: "",
         status: PanelStatus.PENDING,
       })),
     });
 
-    const createdPanels = await prisma.panel.findMany({
+    try {
+      await prisma.panel.updateMany({
+        where: { comicId: comic.id },
+        data: { status: PanelStatus.GENERATING_TAGS },
+      });
+
+      const prompts = await generatePrompts({ data, comicId: comic.id });
+
+      // update panels with prompts
+      await Promise.all(
+        prompts.map(async (prompt, index) => {
+          await prisma.panel.updateMany({
+            where: { comicId: comic.id, order: index },
+            data: {
+              prompt: prompt.prompt,
+              negativePrompt: prompt.negativePrompt,
+              status: PanelStatus.PENDING,
+            },
+          });
+        })
+      );
+    } catch (error) {
+      console.error("Error generating prompts:", error);
+      await prisma.panel.updateMany({
+        where: { comicId: comic.id },
+        data: { status: PanelStatus.FAILED },
+      });
+      return c.json({ error: "Error generating prompts" }, 500);
+    }
+
+    // start image generation in the background
+    const panels = await prisma.panel.findMany({
       where: { comicId: comic.id },
     });
 
-    // start image generation in the background
-    createdPanels.forEach((panel) => {
+    panels.forEach((panel) => {
       generateImage({
         prompt: panel.prompt,
         negativePrompt: panel.negativePrompt,
@@ -94,7 +127,11 @@ export const comics = new Hono()
       include: { panels: true },
     });
 
-    return c.json(comicWithPanels);
+    if (!comicWithPanels) {
+      return c.json({ error: "Create Failed" }, 500);
+    }
+
+    return c.json({ status: "success", id: comicWithPanels.id });
   })
   // get comic by id
   .get("/:id", async (c) => {
