@@ -1,4 +1,5 @@
 "use client";
+import { Genui } from "@/app/(editor)/comics/[id]/_components/genui";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { client } from "@/lib/hono";
@@ -8,6 +9,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import useSWR from "swr";
+
 import { GenerateStatus } from "./_components/generate-status";
 
 const fetcher = async ([url, id]: [string, string]) => {
@@ -119,4 +121,5 @@ export default function ComicPage({ params }: { params: { id: string } }) {
       </div>
     </div>
   );
+  return <Genui comicData={data} />;
 }
