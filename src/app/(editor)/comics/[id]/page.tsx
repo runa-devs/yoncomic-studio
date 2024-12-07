@@ -98,6 +98,12 @@ export default function ComicPage({ params }: { params: { id: string } }) {
     <div className="container mx-auto max-w-4xl py-8">
       <div className="space-y-6">
         <h1 className="text-2xl font-bold">生成されたコミック</h1>
+        {data.story && (
+          <div className="rounded-lg border bg-muted/50 p-4">
+            <h2 className="mb-2 font-medium">ストーリー</h2>
+            <p className="whitespace-pre-wrap text-muted-foreground">{data.story}</p>
+          </div>
+        )}
         <div className="grid gap-4">
           {data.panels.map((panel, index) => (
             <Image

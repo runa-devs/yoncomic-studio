@@ -63,6 +63,7 @@ export const comics = new Hono()
         title: "New Comic",
         userId: session.user.id,
         id: await generateComicId(),
+        story: data.story || null,
       },
     });
 
