@@ -11,6 +11,7 @@ import {
 import { useToolStore } from "@/hooks/use-tool";
 import { cn } from "@/lib/utils";
 import { Circle, Eraser, Hand, MessageCircle, Pencil, Square, Type } from "lucide-react";
+import Image from "next/image";
 
 export type Tool = "pen" | "eraser" | "rectangle" | "circle" | "hand" | "text" | "bubble";
 
@@ -69,10 +70,12 @@ export const ToolBar = ({ className }: { className?: string }) => {
               className={cn("flex items-center", selectedBubbleId === bubble.id && "bg-muted")}
             >
               <div className="mr-2 size-4 overflow-hidden rounded">
-                <img
+                <Image
                   src={`/bubbles/${bubble.src}`}
                   alt={bubble.name}
                   className="size-full object-contain"
+                  width={16}
+                  height={16}
                 />
               </div>
               {bubble.name}

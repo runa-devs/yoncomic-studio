@@ -7,9 +7,9 @@ import { useToolStore } from "@/hooks/use-tool";
 import { cn } from "@/lib/utils";
 import Konva from "konva";
 import { KonvaEventObject } from "konva/lib/Node";
-import { AlignVerticalJustifyStart, Image, Settings2, Type } from "lucide-react";
+import { AlignVerticalJustifyStart, Settings2, Type } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { Circle, Layer, Rect, Stage, Text, Transformer } from "react-konva";
+import { Circle, Image as KonvaImage, Layer, Rect, Stage, Text, Transformer } from "react-konva";
 
 interface ImageEditorProps {
   imageUrl: string;
@@ -384,7 +384,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, width, height }) =>
   };
 
   const calculateTextareaPosition = (pos: { x: number; y: number }) => {
-    const PADDING = 20; // 画面端からの��小距離
+    const PADDING = 20; // 画面端からの小距離
     const TEXTAREA_WIDTH = 200; // テキストエリアの幅
     const TEXTAREA_HEIGHT = 100; // テキストエリアの高さ
     const stage = stageRef.current;
@@ -535,16 +535,16 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, width, height }) =>
         onMouseUp={handleMouseUp}
       >
         <Layer>
-          {backgroundImage && <Image image={backgroundImage} width={width} height={height} />}
+          {backgroundImage && <KonvaImage image={backgroundImage} width={width} height={height} />}
 
-          <Image
+          <KonvaImage
             key={imageUrl}
             id={imageUrl}
+            image={image ?? undefined}
             x={0}
             y={0}
             width={width}
             height={height}
-            image={image}
             draggable={currentTool === "hand"}
             onClick={() => handleNodeClick(imageUrl, "shape")}
           />
@@ -567,7 +567,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, width, height }) =>
               );
             } else if (shape.type === "bubble" && shape.bubbleId && bubbleImages[shape.bubbleId]) {
               return (
-                <Image
+                <KonvaImage
                   key={shape.id}
                   id={shape.id}
                   x={shape.x}
@@ -727,7 +727,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({ imageUrl, width, height }) =>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">文字��向き</label>
+                  <label className="text-sm font-medium">文字向き</label>
                   <div className="flex gap-1">
                     <Button
                       variant={getSelectedText()?.verticalAlign ? "default" : "outline"}
