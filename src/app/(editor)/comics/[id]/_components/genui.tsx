@@ -1,5 +1,6 @@
 "use client";
 import { CenterTab } from "@/app/(editor)/comics/[id]/_components/centertab";
+import { ToolBar } from "@/app/(editor)/comics/[id]/_components/tool-bar";
 import {
   Accordion,
   AccordionContent,
@@ -87,7 +88,7 @@ export const Genui = ({ comicData }: GenuiProps) => {
       >
         {isSidebarCollapsed ? <PanelRightClose /> : <PanelRightOpen />}
       </Button>
-
+      <ToolBar className="absolute right-4 top-1/2 -translate-y-1/2" />
       <section
         className={`absolute top-20 z-50 m-2 border-collapse rounded-2xl border-2 bg-white p-0 text-black shadow-sm transition-all ${isSidebarCollapsed ? "left-0" : "left-[20%]"}`}
       >
@@ -132,28 +133,6 @@ export const Genui = ({ comicData }: GenuiProps) => {
         }`}
       >
         <CenterTab comicData={comicData} selectedCell={selectedCell} />
-        <ImageEditor
-          includeUI={{
-            loadImage: {
-              path: "img/sampleImage.jpg",
-              name: "SampleImage",
-            },
-            menu: ["shape", "filter"],
-            initMenu: "filter",
-            uiSize: {
-              width: "1000px",
-              height: "700px",
-            },
-            menuBarPosition: "bottom",
-          }}
-          cssMaxHeight={500}
-          cssMaxWidth={700}
-          selectionStyle={{
-            cornerSize: 20,
-            rotatingPointOffset: 70,
-          }}
-          usageStatistics={true}
-        />
       </div>
     </div>
   );

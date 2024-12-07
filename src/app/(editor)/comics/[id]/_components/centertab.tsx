@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import ImageEditor from "@/app/(editor)/comics/[id]/_components/ImageEditor";
 import { Comic } from "./genui";
 
 type CenterTabProps = {
@@ -30,11 +30,12 @@ export const CenterTab = ({ comicData, selectedCell }: CenterTabProps) => {
             </div>
           ) : currentPanel ? (
             <section id={selectedCell.toString()} className={commonStyles.single}>
-              <Image
-                src={`${process.env.NEXT_PUBLIC_S3_PUBLIC_URL}/${currentPanel.key ?? currentPanel.originalKey}`}
-                alt={`Panel ${selectedCell + 1}`}
-                width={1126}
-                height={832}
+              <ImageEditor
+                imageUrl={`${process.env.NEXT_PUBLIC_S3_PUBLIC_URL}/${
+                  currentPanel.key ?? currentPanel.originalKey
+                }`}
+                width={800}
+                height={600}
               />
             </section>
           ) : null}
