@@ -9,5 +9,5 @@ type ClientSignInButtonProps = Omit<ButtonProps, "onClick"> & {
 };
 
 export const ClientSignInButton = (props: ClientSignInButtonProps) => {
-  return <Button {...props} onClick={() => signIn(undefined, { callbackUrl: props.redirect })} />;
+  return <Button {...props} onClick={() => signIn("google", { callbackUrl: props.redirect })} />;
 };

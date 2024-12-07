@@ -6,7 +6,7 @@ export const SignInButton = (props: ButtonProps) => {
     <form
       action={async () => {
         "use server";
-        await signIn();
+        await signIn("google");
       }}
     >
       <Button {...props} />
