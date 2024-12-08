@@ -13,7 +13,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { client } from "@/lib/hono";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Dices, Plus } from "lucide-react";
+import { Dices, Loader, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -25,6 +25,7 @@ export function CharacterForm() {
   const [characters, setCharacters] = useState<CharacterFormValues[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const router = useRouter();
 
   const form = useForm<FormValues>({
@@ -41,10 +42,19 @@ export function CharacterForm() {
   };
 
   async function onSubmit(data: FormValues) {
-    console.log("Submitted data:", data);
-    const res = await client.api.comics.new.$post({ json: data });
-    if (res.status === 200) {
-      router.push(`/comics/${(await res.json()).id}`);
+    setIsPending(true);
+    if (isPending) return;
+
+    try {
+      const res = await client.api.comics.new.$post({ json: data });
+      if (res.status === 200) {
+        const { id } = await res.json();
+        router.push(`/comics/${id}`);
+      }
+    } catch (error) {
+      console.error("Submit error:", error);
+    } finally {
+      setIsPending(false);
     }
   }
 
@@ -143,7 +153,16 @@ export function CharacterForm() {
               )}
             />
 
-            <Button type="submit">作成</Button>
+            <Button type="submit" disabled={isPending} className="flex items-center gap-2">
+              {isPending ? (
+                <>
+                  <Loader className="size-4 animate-spin" />
+                  作成中...
+                </>
+              ) : (
+                "作成"
+              )}
+            </Button>
           </form>
         </Form>
       </div>
