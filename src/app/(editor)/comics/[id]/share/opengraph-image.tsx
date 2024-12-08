@@ -17,7 +17,7 @@ const getComicById = async (id: string) => {
 };
 
 export default async function Image({ params }: { params: { id: string } }) {
-  const notoSansJP = fetch(new URL("./NotoSansJP-Regular.ttf", import.meta.url), {
+  const notoSansJP = fetch(new URL("./NotoSansJP-Regular.otf", import.meta.url), {
     cache: "no-cache",
   }).then((res) => res.arrayBuffer());
 
