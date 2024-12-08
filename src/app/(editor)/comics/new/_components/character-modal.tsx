@@ -398,7 +398,7 @@ export function CharacterModal({
               </Collapsible>
             </div>
 
-            <Button type="submit">{initialData ? "更新" : "保存"}</Button>
+            <Button type="button">{initialData ? "更新" : "保存"}</Button>
           </form>
         </Form>
       </DialogContent>
