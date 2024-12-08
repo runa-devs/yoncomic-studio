@@ -14,7 +14,7 @@ export default async function Home() {
   const session = await auth();
   return (
     <main className={cn("flex flex-col", mplus.className)}>
-      <section className="relative flex h-[calc(100vh-4rem)] flex-col  items-center justify-center">
+      <section className="relative flex h-[calc(100vh-2rem)] flex-col  items-center justify-center">
         <div className="relative z-10 flex flex-col items-center justify-center space-y-6 rounded-xl bg-background/20 p-10 shadow-lg backdrop-blur-md md:rounded-none md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
           <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
             <Image
