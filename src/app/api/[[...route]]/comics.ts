@@ -177,28 +177,33 @@ export const comics = new Hono()
     return c.json(panel);
   })
   // edit panel image
-  .post("/:id/panel/:order", async (c) => {
-    const user = await auth();
-    if (!user?.user) {
+  .post("/panel/:id", async (c) => {
+    const session = await auth();
+    if (!session?.user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
-    const id = c.req.param("id");
-    const order = parseInt(c.req.param("order"));
+    const formData = await c.req.formData();
+    const imageFile = formData.get("image") as File;
 
-    if (isNaN(order) || order < 0 || order > 3) {
-      return c.json({ error: "Invalid panel order" }, 400);
+    if (!imageFile) {
+      return c.json({ error: "Image file is required" }, 400);
     }
 
-    const comic = await prisma.comic.findUnique({
-      where: { id },
+    const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
+
+    const id = c.req.param("id");
+
+    const panel = await prisma.panel.findUnique({
+      where: { id, comic: { userId: session.user.id } },
     });
 
-    if (!comic || comic.userId !== user.user.id) {
-      return c.json({ error: "Not found" }, 404);
+    if (!panel) {
+      return c.json({ error: "Invalid panel" }, 400);
     }
 
-    const data = await c.req.json();
+    const s3Key = `panels/${panel.id}.png`;
+    await uploadImageToS3(s3Key, imageBuffer);
 
     return c.json({ success: true });
   })
