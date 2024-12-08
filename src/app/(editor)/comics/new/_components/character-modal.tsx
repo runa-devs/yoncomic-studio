@@ -154,20 +154,9 @@ export function CharacterModal({
 
             <div className="rounded-lg border p-4">
               <Collapsible>
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex w-full items-center justify-between"
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                  >
-                    <span className="text-sm font-medium">詳細設定</span>
-                    <ChevronDown className="size-4" />
-                  </Button>
+                <CollapsibleTrigger type="button" className="flex items-center justify-between">
+                  <span className="text-sm font-medium">詳細設定</span>
+                  <ChevronDown className="size-4" />
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="mt-4 grid grid-cols-3 gap-4">
