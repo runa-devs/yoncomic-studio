@@ -8,6 +8,6 @@ export const notoSansJP = Noto_Sans_JP({
 });
 
 export const mplus = localFont({
-  src: "./MPLUSRounded1c-Regular.ttf",
+  src: "./../assets/MPLUSRounded1c-Regular.ttf",
   display: "swap",
 });
