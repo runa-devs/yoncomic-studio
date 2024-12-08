@@ -104,11 +104,14 @@ export function CharacterModal({
         </DialogHeader>
         <Form {...characterForm}>
           <form
-            onSubmit={characterForm.handleSubmit((data) => {
-              onSave(data);
-              characterForm.reset();
-              onClose();
-            })}
+            onSubmit={(e) => {
+              e.preventDefault();
+              characterForm.handleSubmit((data) => {
+                onSave(data);
+                characterForm.reset();
+                onClose();
+              })(e);
+            }}
             className="space-y-6"
           >
             <FormField
@@ -152,12 +155,19 @@ export function CharacterModal({
             <div className="rounded-lg border p-4">
               <Collapsible>
                 <CollapsibleTrigger asChild>
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium">詳細設定</h3>
-                    <Button variant="ghost" size="sm" type="button">
-                      <ChevronDown className="size-4" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex w-full items-center justify-between"
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    <span className="text-sm font-medium">詳細設定</span>
+                    <ChevronDown className="size-4" />
+                  </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="mt-4 grid grid-cols-3 gap-4">
@@ -398,7 +408,19 @@ export function CharacterModal({
               </Collapsible>
             </div>
 
-            <Button type="button">{initialData ? "更新" : "保存"}</Button>
+            <Button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                characterForm.handleSubmit((data) => {
+                  onSave(data);
+                  characterForm.reset();
+                  onClose();
+                })(e);
+              }}
+            >
+              {initialData ? "更新" : "保存"}
+            </Button>
           </form>
         </Form>
       </DialogContent>

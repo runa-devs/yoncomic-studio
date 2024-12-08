@@ -11,26 +11,33 @@ interface CharacterCardProps {
 
 export function CharacterCard({ character, onEdit, onDelete }: CharacterCardProps) {
   return (
-    <div
-      className="relative cursor-pointer rounded-lg border p-4 transition-colors hover:bg-gray-50"
-      onClick={onEdit}
-    >
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute right-2 top-2 size-6"
+    <div className="relative rounded-lg border p-4">
+      <div
+        className="cursor-pointer"
         onClick={(e) => {
-          e.stopPropagation();
-          onDelete();
+          e.preventDefault();
+          onEdit();
         }}
       >
-        <X className="size-4" />
-      </Button>
-      <h3 className="font-medium">{character.charactername}</h3>
-      <p className="text-sm text-gray-500">
-        性別:{" "}
-        {character.gender === "man" ? "男性" : character.gender === "woman" ? "女性" : "その他"}
-      </p>
+        <Button
+          variant="ghost"
+          size="icon"
+          type="button"
+          className="absolute right-2 top-2 size-6"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onDelete();
+          }}
+        >
+          <X className="size-4" />
+        </Button>
+        <h3 className="font-medium">{character.charactername}</h3>
+        <p className="text-sm text-gray-500">
+          性別:{" "}
+          {character.gender === "man" ? "男性" : character.gender === "woman" ? "女性" : "その他"}
+        </p>
+      </div>
     </div>
   );
 }

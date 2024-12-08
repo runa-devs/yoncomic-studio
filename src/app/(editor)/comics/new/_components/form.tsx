@@ -95,8 +95,12 @@ export function CharacterForm() {
                 {characters.length < 2 && (
                   <Button
                     variant="outline"
+                    type="button"
                     className="flex h-32 w-full flex-col items-center justify-center"
-                    onClick={handleAddCharacter}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleAddCharacter();
+                    }}
                   >
                     <Plus className="mb-2 size-8" />
                     <span>キャラクターを追加</span>
@@ -130,7 +134,7 @@ export function CharacterForm() {
                   <FormLabel>
                     <div className="flex items-center justify-between">
                       <p>ストーリー(任意)</p>
-                      <Button variant="outline" size="sm" disabled>
+                      <Button variant="outline" size="sm" type="button" disabled>
                         <Dices className="size-4" />
                         ランダム
                       </Button>
