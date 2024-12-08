@@ -7,6 +7,7 @@ import { uploadImageToS3 } from "@/lib/s3";
 import { zValidator } from "@hono/zod-validator";
 import { PanelStatus } from "@prisma/client";
 import { Hono } from "hono";
+import { z } from "zod";
 
 const generateComicId = async () => {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -177,36 +178,45 @@ export const comics = new Hono()
     return c.json(panel);
   })
   // edit panel image
-  .post("/panel/:id", async (c) => {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return c.json({ error: "Unauthorized" }, 401);
+  .post(
+    "/panel/:id",
+    zValidator(
+      "form",
+      z.object({
+        image: z.instanceof(File),
+      })
+    ),
+    async (c) => {
+      const session = await auth();
+      if (!session?.user?.id) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      const formData = await c.req.valid("form");
+      const imageFile = formData.image as File;
+
+      if (!imageFile) {
+        return c.json({ error: "Image file is required" }, 400);
+      }
+
+      const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
+
+      const id = c.req.param("id");
+
+      const panel = await prisma.panel.findUnique({
+        where: { id, comic: { userId: session.user.id } },
+      });
+
+      if (!panel) {
+        return c.json({ error: "Invalid panel" }, 400);
+      }
+
+      const s3Key = `panels/${panel.id}.png`;
+      await uploadImageToS3(s3Key, imageBuffer);
+
+      return c.json({ success: true });
     }
-
-    const formData = await c.req.formData();
-    const imageFile = formData.get("image") as File;
-
-    if (!imageFile) {
-      return c.json({ error: "Image file is required" }, 400);
-    }
-
-    const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
-
-    const id = c.req.param("id");
-
-    const panel = await prisma.panel.findUnique({
-      where: { id, comic: { userId: session.user.id } },
-    });
-
-    if (!panel) {
-      return c.json({ error: "Invalid panel" }, 400);
-    }
-
-    const s3Key = `panels/${panel.id}.png`;
-    await uploadImageToS3(s3Key, imageBuffer);
-
-    return c.json({ success: true });
-  })
+  )
   .post("/webhook", async (c) => {
     const data = await c.req.json();
 

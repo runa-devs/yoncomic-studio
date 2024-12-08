@@ -4,7 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { client } from "@/lib/hono";
 import { cn } from "@/lib/utils";
-import { PanelStatus } from "@prisma/client";
+import { Comic, Panel, PanelStatus } from "@prisma/client";
 import { AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
@@ -97,7 +97,7 @@ export default function ComicPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="flex flex-1 flex-col">
-      <Genui comicData={data} />
+      <Genui comicData={data as Comic & { panels: Panel[]; createdAt: string }} />
     </div>
   );
 }

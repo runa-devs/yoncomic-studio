@@ -1,138 +1,228 @@
 "use client";
 import { CenterTab } from "@/app/(editor)/comics/[id]/_components/centertab";
 import { ToolBar } from "@/app/(editor)/comics/[id]/_components/tool-bar";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { client } from "@/lib/hono";
 import { cn } from "@/lib/utils";
-import { Panel } from "@prisma/client";
-import {
-  ChevronDown,
-  ChevronUp,
-  Maximize,
-  Minimize,
-  PanelRightClose,
-  PanelRightOpen,
-} from "lucide-react";
-import { useState } from "react";
-
-const logo = "logo.svg";
-
-type TaskStatus = "waiting" | "generating" | "done";
-
-const getStatusText = (status: TaskStatus): string => {
-  switch (status) {
-    case "waiting":
-      return "待機中";
-    case "generating":
-      return "生成中";
-    case "done":
-      return "完了";
-    default:
-      return status;
-  }
-};
-
-export type Comic = {
-  id: string;
-  userId: string;
-  panels: Panel[];
-};
+import { Comic, Panel } from "@prisma/client";
+import { LayoutGrid, LayoutPanelTop, Rows, Save } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import type { ImageEditorRef } from "./ImageEditor";
+import ImageEditor from "./ImageEditor";
 
 type GenuiProps = {
-  comicData: Comic;
+  comicData: Comic & { panels: Panel[]; createdAt: string };
 };
 
-export const Genui = ({ comicData }: GenuiProps) => {
-  const [selectedCell, setSelectedCell] = useState<number>(-1);
-  const [cfgScale, setCfgScale] = useState<number>(7);
-  const [steps, setSteps] = useState<number>(20);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+type ViewMode = "grid" | "vertical" | "single";
 
-  const toggleSidebar = () => {
-    setIsSidebarCollapsed((prev) => !prev);
+export const Genui = ({ comicData }: GenuiProps) => {
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [selectedCell, setSelectedCell] = useState(-1);
+  const imageEditorRefs = useRef<(ImageEditorRef | null)[]>([]);
+
+  const commonStyles = {
+    single:
+      "aspect-[3/2] w-[700px] rounded-sm border-2 border-gray-300 bg-white items-center flex justify-center",
+  };
+
+  useEffect(() => {
+    imageEditorRefs.current = Array(comicData.panels.length).fill(null);
+  }, [comicData.panels.length]);
+
+  const handlePanelClick = (index: number) => {
+    const container = document.getElementById(`panel-${index}`);
+    if (container) {
+      container.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  const handleScroll = (scrollTop: number) => {
+    setScrollPosition(scrollTop);
+  };
+
+  const toggleViewMode = () => {
+    setViewMode((current) => {
+      switch (current) {
+        case "single":
+          return "grid";
+        case "grid":
+          return "vertical";
+        case "vertical":
+          return "single";
+      }
+    });
+  };
+
+  const getViewModeIcon = () => {
+    switch (viewMode) {
+      case "single":
+        return <LayoutGrid className="size-4" />;
+      case "grid":
+        return <Rows className="size-4" />;
+      case "vertical":
+        return <LayoutPanelTop className="size-4" />;
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      await Promise.all(
+        imageEditorRefs.current.map(async (ref, index) => {
+          if (!ref) return;
+
+          const formData = await ref.getImageFormData();
+          if (!formData) return;
+
+          const response = await client.api.comics.panel[":id"].$post({
+            param: {
+              id: comicData.panels[index].id,
+            },
+            form: {
+              image: formData.get("image") as File,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to upload image for panel ${index}`);
+          }
+
+          const result = await response.json();
+          console.log(`Upload successful for panel ${index}:`, result);
+        })
+      );
+    } catch (error) {
+      console.error("Failed to save images:", error);
+    }
   };
 
   return (
     <div className="relative flex flex-1">
-      <div
+      <ToolBar
         className={cn(
-          `absolute z-10 flex h-full overflow-hidden border-r bg-gray-100 duration-300 ease-in-out`,
-          isSidebarCollapsed ? "w-0" : "w-1/5 translate-x-0"
+          "fixed right-4 top-1/3 -translate-y-1/2 transition-all duration-300",
+          "flex flex-col gap-2 rounded-xl border bg-white/80 p-2 shadow-sm backdrop-blur-sm",
+          `translate-y-[${scrollPosition}px]`
         )}
-      >
-        {!isSidebarCollapsed && (
-          <>
-            <Accordion type="multiple" className="w-full">
-              <AccordionItem value="generate" className="m-2 rounded-3xl bg-white shadow-sm">
-                <AccordionTrigger className="rounded-3xl  bg-white px-4">
-                  生成キュー
-                </AccordionTrigger>
-                <AccordionContent className="rounded-b-3xl  bg-white px-4"></AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </>
-        )}
-      </div>
+      />
 
-      <Button
-        onClick={toggleSidebar}
-        className={cn(
-          `absolute z-50 m-2 size-12 border-collapse rounded-2xl border-2  bg-white p-0 text-black shadow-sm transition-all duration-300 hover:bg-gray-100 `,
-          isSidebarCollapsed ? "left-0" : "left-[20%]"
-        )}
-      >
-        {isSidebarCollapsed ? <PanelRightClose /> : <PanelRightOpen />}
-      </Button>
-      <ToolBar className="absolute right-4 top-1/2 -translate-y-1/2" />
       <section
-        className={`absolute top-20 z-50 m-2 border-collapse rounded-2xl border-2 bg-white p-0 text-black shadow-sm transition-all ${isSidebarCollapsed ? "left-0" : "left-[20%]"}`}
+        className={cn(
+          "fixed z-50 rounded-xl border bg-white/80 p-2 shadow-sm backdrop-blur-sm transition-all duration-300",
+          "top-1/3 -translate-y-1/2",
+          `translate-y-[${scrollPosition}px]`,
+          "left-4"
+        )}
       >
-        <div className="m-2 flex-col justify-items-center">
-          <div className="m-2 select-none rounded-md border-2 shadow-md transition-all duration-200 hover:scale-125">
-            {selectedCell !== -1 ? (
-              <Minimize onClick={() => setSelectedCell(-1)} className="m-1 size-4" />
-            ) : (
-              <Maximize onClick={() => setSelectedCell(0)} className="m-1 size-4" />
-            )}
-          </div>
-
-          <ChevronUp
-            className={
-              "m-2 size-7 select-none rounded-full border-2 shadow-md transition-all  duration-200 hover:scale-125"
-            }
-            onClick={() => setSelectedCell(Math.max(selectedCell - 1, 0))}
-            color={selectedCell === 0 ? "gray" : "black"}
-          />
-          {comicData.panels.map((panel, index) => (
-            <div
+        <div className="flex flex-col gap-1.5">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-9 font-medium hover:bg-gray-100/80"
+            onClick={toggleViewMode}
+          >
+            {getViewModeIcon()}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-9 font-medium hover:bg-gray-100/80"
+            onClick={handleSave}
+          >
+            <Save className="size-4" />
+          </Button>
+          <div className="h-px bg-gray-200" />
+          {comicData.panels.map((_, index) => (
+            <Button
               key={index}
-              onClick={() => setSelectedCell(index as 0 | 1 | 2 | 3)}
-              className={`flex h-10 w-12 items-center justify-center rounded-md bg-slate-300 text-xl text-white shadow-md transition duration-100 hover:-translate-y-1 ${
-                selectedCell === index ? "bg-blue-600" : "bg-slate-600"
-              } cursor-pointer select-none border-2 duration-150 hover:scale-110`}
+              variant="ghost"
+              size="icon"
+              className="size-9 font-medium hover:bg-gray-100/80"
+              onClick={() => handlePanelClick(index)}
             >
-              <span className="select-none text-[1rem] text-white">{index + 1}</span>
-            </div>
+              {index + 1}
+            </Button>
           ))}
-          <ChevronDown
-            className="m-2 size-7 select-none rounded-full border-2 shadow-md transition-all duration-200 hover:scale-125"
-            onClick={() => setSelectedCell(Math.min(selectedCell + 1, 3))}
-            color={selectedCell === 3 ? "gray" : "black"}
-          />
         </div>
       </section>
 
-      <div
-        className={`flex flex-1 transition-all duration-300 ease-in-out ${
-          isSidebarCollapsed ? "ml-0" : "ml-[20%]"
-        }`}
-      >
-        <CenterTab comicData={comicData} selectedCell={selectedCell} />
+      <div className="flex flex-1">
+        {/* グリッド表示 */}
+        <div
+          className={cn(
+            "flex size-full items-center justify-center",
+            viewMode !== "grid" && "hidden"
+          )}
+        >
+          <CenterTab
+            comicData={comicData}
+            selectedCell={selectedCell}
+            onScroll={handleScroll}
+            refs={imageEditorRefs}
+          />
+        </div>
+
+        {/* 垂直表示 */}
+        <div
+          className={cn(
+            "flex size-full items-center justify-center",
+            viewMode !== "vertical" && "hidden"
+          )}
+        >
+          <div className="flex flex-col gap-1">
+            {comicData.panels.map((panel, index) => (
+              <div
+                key={index}
+                className="group relative aspect-[3/2] w-[320px] overflow-hidden rounded-md border bg-white shadow-sm transition-all hover:shadow-md"
+              >
+                {panel.key || panel.originalKey ? (
+                  <div className="relative size-full">
+                    <ImageEditor
+                      comicId={comicData.id}
+                      imageUrl={`${process.env.NEXT_PUBLIC_S3_PUBLIC_URL}/${
+                        panel.key ?? panel.originalKey
+                      }`}
+                      width={320}
+                      height={213}
+                      ref={(el) => {
+                        imageEditorRefs.current[index] = el;
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex size-full items-center justify-center text-2xl text-gray-300">
+                    {index + 1}
+                  </div>
+                )}
+                <div className="absolute left-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-white/80 text-xs font-medium shadow-sm backdrop-blur-sm">
+                  {index + 1}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* シングル表示 */}
+        <div className={cn("flex flex-1", viewMode !== "single" && "hidden")}>
+          <div className="flex size-full items-center justify-center">
+            <section className={commonStyles.single}>
+              {selectedCell !== -1 && comicData.panels[selectedCell] && (
+                <ImageEditor
+                  comicId={comicData.id}
+                  imageUrl={`${process.env.NEXT_PUBLIC_S3_PUBLIC_URL}/${
+                    comicData.panels[selectedCell].key ?? comicData.panels[selectedCell].originalKey
+                  }`}
+                  width={700}
+                  height={467}
+                  ref={(el) => {
+                    imageEditorRefs.current[selectedCell] = el;
+                  }}
+                />
+              )}
+            </section>
+          </div>
+        </div>
       </div>
     </div>
   );
