@@ -74,7 +74,12 @@ export function CharacterForm() {
       <div className="w-2/3 rounded-3xl bg-background p-8 shadow-lg">
         <h1 className="text-xl font-bold">マンガ作成</h1>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-4 space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+            className="mt-4 space-y-6"
+          >
             <div className="space-y-4">
               <h2 className="text-lg font-medium">キャラクター設定</h2>
               <div className="grid grid-cols-2 gap-4">
@@ -157,7 +162,12 @@ export function CharacterForm() {
               )}
             />
 
-            <Button type="submit" disabled={isPending} className="flex items-center gap-2">
+            <Button
+              type="button" // type="submit"から変更
+              onClick={() => form.handleSubmit(onSubmit)()}
+              disabled={isPending}
+              className="flex items-center gap-2"
+            >
               {isPending ? (
                 <>
                   <Loader className="size-4 animate-spin" />

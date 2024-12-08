@@ -1,9 +1,9 @@
 import { ClientSignInButton } from "@/components/auth/signin-button-client";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { auth } from "@/lib/auth";
 import { mplus, notoSansJP } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
+import { Brain, Check, ImageIcon, Lightbulb } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { SiGithub } from "react-icons/si";
@@ -58,10 +58,12 @@ export default async function Home() {
                 はじめる
               </ClientSignInButton>
             )}
-            <Button variant="outline" size="lg" className={notoSansJP.className}>
-              <SiGithub className="mr-2 size-5" />
-              GitHub
-            </Button>
+            <Link href="https://github.com/runa-devs/yoncomic-studio" target="_blank">
+              <Button variant="outline" size="lg" className={notoSansJP.className}>
+                <SiGithub className="mr-2 size-5" />
+                GitHub
+              </Button>
+            </Link>
           </div>
           <p className="text-center text-xs text-muted-foreground">
             本サービスの利用には、
@@ -120,8 +122,9 @@ export default async function Home() {
                     を入力
                   </>
                 ),
+                icon: Lightbulb,
+                backgroundColor: "bg-blue-500",
                 description: "わからないところはAIが考えてくれます",
-                alt: "アイデア入力画面",
               },
               {
                 title: (
@@ -133,25 +136,35 @@ export default async function Home() {
                     が展開を考える
                   </>
                 ),
+                icon: Brain,
+                backgroundColor: "bg-purple-500",
                 description: "AIが自動で4コマの展開を考えます",
-                alt: "展開考える画面",
               },
               {
                 title: <>3. 画像を生成</>,
                 description: "高品質な画像をAIが自動生成",
-                alt: "画像生成画面",
+                icon: ImageIcon,
+                backgroundColor: "bg-green-500",
               },
               {
                 title: "4. 完成！",
                 description: "オリジナルの4コマ漫画の出来上がり",
-                alt: "完成画面",
+                icon: Check,
+                backgroundColor: "bg-green-500",
               },
             ].map((feature, index) => (
               <div
                 key={index}
                 className="flex flex-col items-center space-y-4 rounded-lg bg-background p-6 shadow-lg"
               >
-                <Skeleton className="h-[200px] w-full rounded-lg">{feature.alt}</Skeleton>
+                <div
+                  className={cn(
+                    "flex size-12 items-center justify-center rounded-full",
+                    feature.backgroundColor
+                  )}
+                >
+                  <feature.icon className="size-6 text-white" />
+                </div>
                 <h3 className={cn("text-xl font-medium", notoSansJP.className)}>{feature.title}</h3>
                 <p className="text-center text-muted-foreground">{feature.description}</p>
               </div>

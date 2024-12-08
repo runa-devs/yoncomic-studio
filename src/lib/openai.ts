@@ -31,7 +31,7 @@ Jsonのフォーマットに従ってください。
     }
     // ↑このフォーマットで4コマ分生成してください
   ],
-  "story": "ストーリー情報(1コマずつのストーリーを生成してください)"
+  "story": "ストーリー情報(1コマずつのストーリーを生成してください)、日本語で出力してください"
 }
 
 構図前のプロンプトは意味がない前提で構図プロンプトを考えてください
@@ -118,7 +118,7 @@ ${params.data.story || "特になし(起承転結の順でオチがつくよう�
   try {
     const result = JSON.parse(response.choices[0].message.content || "{}");
     const parsed = outputSchema.parse(result);
-    return parsed.prompts;
+    return { prompts: parsed.prompts, story: parsed.story };
   } catch (error) {
     await prisma.panel.updateMany({
       where: { comicId: params.comicId },

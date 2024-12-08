@@ -84,7 +84,7 @@ export const comics = new Hono()
         data: { status: PanelStatus.GENERATING_TAGS },
       });
 
-      const prompts = await generatePrompts({ data, comicId: comic.id });
+      const { prompts, story } = await generatePrompts({ data, comicId: comic.id });
 
       // update panels with prompts
       await Promise.all(
@@ -99,6 +99,11 @@ export const comics = new Hono()
           });
         })
       );
+
+      await prisma.comic.update({
+        where: { id: comic.id },
+        data: { story },
+      });
     } catch (error) {
       console.error("Error generating prompts:", error);
       await prisma.panel.updateMany({

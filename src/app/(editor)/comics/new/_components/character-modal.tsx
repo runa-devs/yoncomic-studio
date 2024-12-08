@@ -106,11 +106,6 @@ export function CharacterModal({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              characterForm.handleSubmit((data) => {
-                onSave(data);
-                characterForm.reset();
-                onClose();
-              })(e);
             }}
             className="space-y-6"
           >
