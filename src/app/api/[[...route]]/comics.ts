@@ -133,10 +133,9 @@ export const comics = new Hono()
   })
   .get("/:id", async (c) => {
     const id = c.req.param("id");
-    const session = await auth();
 
     const comic = await prisma.comic.findUnique({
-      where: { id, userId: session?.user?.id },
+      where: { id },
       include: { panels: { orderBy: { order: "asc" } } },
     });
 
